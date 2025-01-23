@@ -22,7 +22,7 @@ Para executar este projeto, siga as instruções abaixo:
 
 1. Clone o repositório:
     ```bash
-    git clone https://github.com/seu-usuario/seu-repositorio.git
+    git clone https://github.com/jailson1985/projeto_psw.git
     ```
 2. Instale as dependências:
     ```bash
