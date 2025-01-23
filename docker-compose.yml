@@ -1,0 +1,81 @@
+version: "3.8"
+services:
+  # Contêiner Redis
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+
+  # Contêiner Django (teste_psw)
+  teste_psw:
+    build: .
+    command: bash -c "python manage.py migrate && gunicorn teste_psw.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - .:/app  # Monta o diretório do projeto no contêiner
+
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DJANGO_SETTINGS_MODULE=teste_psw.settings
+    networks:
+      - backend
+
+  # Contêiner Celery
+  celery:
+    build: .
+    command: celery -A teste_psw worker --loglevel=INFO --concurrency=4 --time-limit=300
+    volumes:
+      - .:/app  # Monta o diretório do projeto no contêiner
+    depends_on:
+      - redis
+      - teste_psw
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DJANGO_SETTINGS_MODULE=teste_psw.settings
+    networks:
+      - backend
+
+  # Contêiner Celery Beat (agendador de tarefas)
+  celery-beat:
+    build: .
+    command: celery -A teste_psw beat --loglevel=info
+    volumes:
+      - .:/app  # Monta o diretório do projeto no contêiner
+    depends_on:
+      - redis
+      - teste_psw
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DJANGO_SETTINGS_MODULE=teste_psw.settings
+    networks:
+      - backend
+
+  # Serviço para o Flower
+  flower:
+    image: mher/flower:latest
+    container_name: flower
+    command: celery --broker=redis://redis:6379/0 flower --port=5555
+    
+    ports:
+      - "5555:5555"  # Porta padrão para acessar o Flower
+    depends_on:
+      - redis
+    restart: always
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DJANGO_SETTINGS_MODULE=teste_psw.settings
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

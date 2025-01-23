@@ -1,0 +1,47 @@
+# Arquivos e pastas do Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.pyc
+
+# Ambiente virtual
+venv/
+env/
+.venv/
+.env/
+
+# Arquivos de configuração do IDE
+.idea/
+.vscode/
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos de log
+*.log
+
+# Banco de dados
+db.sqlite3
+
+# Arquivos de cache do Django
+*.log
+*.pot
+*.pyc
+*.pyo
+*.db
+
+# Arquivos de compilação do Django
+*.mo
+*.pot
+
+# Arquivos de migracao (em alguns casos, você pode querer incluir migracoes, mas normalmente não versiona a pasta migrations diretamente)
+*/migrations/
+
+# Arquivo .env que contém configurações sensíveis
+.env
+
+# Arquivos de backup
+*.bak
+*.swp
